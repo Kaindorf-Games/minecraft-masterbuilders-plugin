@@ -10,6 +10,6 @@ public class JoinEvent implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         Player p = event.getPlayer();
-        p.performCommand("bg join Castle");
+        p.performCommand("bg join Button");
     }
 }
