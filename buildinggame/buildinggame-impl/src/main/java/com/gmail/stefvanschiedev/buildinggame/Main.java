@@ -11,6 +11,7 @@ import com.gmail.stefvanschiedev.buildinggame.events.entity.EntityOptionsMenu;
 import com.gmail.stefvanschiedev.buildinggame.events.player.*;
 import com.gmail.stefvanschiedev.buildinggame.events.player.signs.ClickSpectateSign;
 import com.gmail.stefvanschiedev.buildinggame.events.softdependencies.WorldEditBoundaryAssertion;
+import com.gmail.stefvanschiedev.buildinggame.leaderboard.JoinEvent;
 import com.gmail.stefvanschiedev.buildinggame.managers.arenas.*;
 import com.gmail.stefvanschiedev.buildinggame.managers.commands.CommandManager;
 import com.gmail.stefvanschiedev.buildinggame.managers.softdependencies.PlaceholderAPIPlaceholders;
@@ -104,6 +105,9 @@ public class Main extends JavaPlugin {
 
 		getLogger().info("Loading files");
 		SettingsManager.getInstance().setup(this, true);
+
+        // register JoinEvent
+        Bukkit.getServer().getPluginManager().registerEvents(new JoinEvent(), this);
 
 		//loading metrics
 		getLogger().info("Loading metrics");

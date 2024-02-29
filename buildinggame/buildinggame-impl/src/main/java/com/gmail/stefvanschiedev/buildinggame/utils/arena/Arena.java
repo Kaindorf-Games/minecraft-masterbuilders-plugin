@@ -8,6 +8,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.gmail.stefvanschiedev.buildinggame.leaderboard.Leaderboard;
+import com.gmail.stefvanschiedev.buildinggame.leaderboard.Member;
+import com.gmail.stefvanschiedev.buildinggame.managers.stats.StatManager;
 import com.gmail.stefvanschiedev.buildinggame.utils.*;
 import com.gmail.stefvanschiedev.buildinggame.utils.guis.SubjectMenu.When;
 import com.gmail.stefvanschiedev.buildinggame.utils.item.ClickEvent;
@@ -17,6 +20,8 @@ import com.gmail.stefvanschiedev.buildinggame.utils.potential.PotentialBlockPosi
 import com.gmail.stefvanschiedev.buildinggame.utils.potential.PotentialLocation;
 import com.gmail.stefvanschiedev.buildinggame.utils.region.Region;
 import com.gmail.stefvanschiedev.buildinggame.utils.scoreboards.*;
+import com.gmail.stefvanschiedev.buildinggame.utils.stats.Stat;
+import com.gmail.stefvanschiedev.buildinggame.utils.stats.StatType;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
@@ -677,6 +682,52 @@ public class Arena {
 		return getPlots().stream().noneMatch(plot -> plot.getBoundary() == null || plot.getFloor() == null);
 	}
 
+    private Stat getStatNotNull(OfflinePlayer p, StatType statType) {
+        StatManager instance = StatManager.getInstance();
+
+        Stat stat = instance.getStat(p, statType);
+        if (stat == null)
+            stat = new Stat(p, 0);
+
+        return stat;
+    }
+
+    private void sendLeaderboard(){
+        Bukkit.getLogger().info("Preparing Leaderboard");
+        StatManager instance = StatManager.getInstance();
+        Leaderboard leaderboard = new Leaderboard();
+        List<OfflinePlayer> players = new LinkedList<>();
+
+
+        for (Stat stat : Objects.requireNonNull(instance.getStats(StatType.PLAYS))){
+            //Bukkit.getLogger().info(stat.getPlayer().getName() + ":" + stat.getValue());
+            OfflinePlayer p = stat.getPlayer();
+            players.add(p);
+        }
+
+        List<Member> members = new LinkedList<>();
+
+        for (OfflinePlayer p : players){
+            Map<String, Double> attributes = new HashMap<>();
+
+            attributes.put("Wins", (double) getStatNotNull(p, StatType.FIRST).getValue());
+            attributes.put("Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue());
+            attributes.put("Plays", (double) getStatNotNull(p, StatType.PLAYS).getValue());
+
+            if (attributes.get("Plays") == 0)
+                attributes.put("Average Points", 0.0);
+            else
+                attributes.put("Average Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue() / attributes.get("Plays"));
+
+
+            Member m = new Member(p.getName(), attributes);
+            members.add(m);
+        }
+
+        leaderboard.setMembers(members);
+        leaderboard.send();
+    }
+
 	/**
      * Joins the given player this arena, with all messages being send and all items given to the player. It'll teleport
      * the player to the {@link #lobby} and will join the first open plot. An ArenaJoinEvent may fire once this method
@@ -688,7 +739,9 @@ public class Arena {
 	public void join(final Player player) {
 		final YamlConfiguration config = SettingsManager.getInstance().getConfig();
 		final YamlConfiguration messages = SettingsManager.getInstance().getMessages();
-		
+
+        this.sendLeaderboard();
+
 		//check if everything is set up
 		if (!isSetup()) {
 			MessageManager.getInstance().send(player, ChatColor.RED +
@@ -1588,8 +1641,10 @@ public class Arena {
 
 		this.matches = 0;
 
-		SignManager.getInstance().updateJoinSigns(this);
-	}
+
+        SignManager.getInstance().updateJoinSigns(this);
+        this.sendLeaderboard();
+    }
 
     /**
      * Checks if this arena can be joined at this moment

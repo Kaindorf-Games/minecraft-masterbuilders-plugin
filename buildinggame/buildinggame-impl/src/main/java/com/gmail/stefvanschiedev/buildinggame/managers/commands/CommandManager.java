@@ -301,6 +301,22 @@ public class CommandManager extends BaseCommand {
         arena.join(player);
     }
 
+    @Subcommand("joinall")
+    @Description("Force All players to join")
+    @CommandPermission("bg.joinall")
+    @CommandCompletion("@arenas")
+    public void onJoinAll(CommandSender sender, @Optional Arena arena) {
+        for (Player p : Bukkit.getServer().getOnlinePlayers()){
+            Arena playerArena = ArenaManager.getInstance().getArena(p);
+            if (playerArena != null && arena == null)
+                p.performCommand("bg join " + playerArena.getName());
+            else if (playerArena == null && arena != null)
+                p.performCommand("bg join " + arena.getName());
+            else
+                MessageManager.getInstance().send(sender, ChatColor.RED + "Please specify an arena");
+        }
+    }
+
     /**
      * Called whenever a player wants to leave the currently joined arena
      *
