@@ -1,9 +1,5 @@
 package com.gmail.stefvanschiedev.buildinggame.utils.arena;
 
-import java.io.File;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -67,7 +63,7 @@ import org.jetbrains.annotations.Nullable;
 public class Arena {
 
     /**
-     * Whether this aren is in solo or team mode
+     * Whether this arena is in solo or team mode
      */
 	private ArenaMode mode = ArenaMode.SOLO;
 
@@ -682,7 +678,7 @@ public class Arena {
 		return getPlots().stream().noneMatch(plot -> plot.getBoundary() == null || plot.getFloor() == null);
 	}
 
-    private Stat getStatNotNull(OfflinePlayer p, StatType statType) {
+    private static Stat getStatNotNull(OfflinePlayer p, StatType statType) {
         StatManager instance = StatManager.getInstance();
 
         Stat stat = instance.getStat(p, statType);
@@ -692,40 +688,47 @@ public class Arena {
         return stat;
     }
 
-    private void sendLeaderboard(){
+    public static void sendLeaderboard(){
         Bukkit.getLogger().info("Preparing Leaderboard");
         StatManager instance = StatManager.getInstance();
         Leaderboard leaderboard = new Leaderboard();
         List<OfflinePlayer> players = new LinkedList<>();
 
+        try {
+            if ( instance.getStats(StatType.PLAYS) != null) {
+                for (Stat stat : instance.getStats(StatType.PLAYS)) {
+                    if (stat != null) {
+                        //Bukkit.getLogger().info(stat.getPlayer().getName() + ":" + stat.getValue());
+                        OfflinePlayer p = stat.getPlayer();
+                        players.add(p);
+                    }
+                }
+            }
 
-        for (Stat stat : Objects.requireNonNull(instance.getStats(StatType.PLAYS))){
-            //Bukkit.getLogger().info(stat.getPlayer().getName() + ":" + stat.getValue());
-            OfflinePlayer p = stat.getPlayer();
-            players.add(p);
+            List<Member> members = new LinkedList<>();
+
+            for (OfflinePlayer p : players){
+                Map<String, Double> attributes = new HashMap<>();
+
+                attributes.put("Wins", (double) getStatNotNull(p, StatType.FIRST).getValue());
+                attributes.put("Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue());
+                attributes.put("Plays", (double) getStatNotNull(p, StatType.PLAYS).getValue());
+
+                if (attributes.get("Plays") == 0)
+                    attributes.put("Average Points", 0.0);
+                else
+                    attributes.put("Average Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue() / attributes.get("Plays"));
+
+
+                Member m = new Member(p.getName(), attributes);
+                members.add(m);
+            }
+
+            leaderboard.setMembers(members);
+            leaderboard.send();
+        } catch (Exception ex){
+            Bukkit.getLogger().warning(Arrays.toString(ex.getStackTrace()));
         }
-
-        List<Member> members = new LinkedList<>();
-
-        for (OfflinePlayer p : players){
-            Map<String, Double> attributes = new HashMap<>();
-
-            attributes.put("Wins", (double) getStatNotNull(p, StatType.FIRST).getValue());
-            attributes.put("Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue());
-            attributes.put("Plays", (double) getStatNotNull(p, StatType.PLAYS).getValue());
-
-            if (attributes.get("Plays") == 0)
-                attributes.put("Average Points", 0.0);
-            else
-                attributes.put("Average Points", (double) getStatNotNull(p, StatType.POINTS_RECEIVED).getValue() / attributes.get("Plays"));
-
-
-            Member m = new Member(p.getName(), attributes);
-            members.add(m);
-        }
-
-        leaderboard.setMembers(members);
-        leaderboard.send();
     }
 
 	/**

@@ -1103,6 +1103,21 @@ public class CommandManager extends BaseCommand {
     }
 
     /**
+     * Called whenever a command sender wants clear the stats in the database
+     *
+     * @param sender the command sender
+     * @since 12.1.0
+     */
+    @Subcommand("clearstats")
+    @Description("Clear Stats in database")
+    @CommandPermission("bg.clearstats")
+    public void onClearStatsInDatabase(CommandSender sender) {
+        StatManager.getInstance().clearStatsInDatabase();
+
+        sender.sendMessage(ChatColor.GREEN + "The Stats were cleared in the Database.");
+    }
+
+    /**
      * Shows an automatically generated help display to the sender
      *
      * @param sender the sender which should see the help menu

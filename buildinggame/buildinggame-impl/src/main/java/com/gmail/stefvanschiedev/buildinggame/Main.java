@@ -11,14 +11,13 @@ import com.gmail.stefvanschiedev.buildinggame.events.entity.EntityOptionsMenu;
 import com.gmail.stefvanschiedev.buildinggame.events.player.*;
 import com.gmail.stefvanschiedev.buildinggame.events.player.signs.ClickSpectateSign;
 import com.gmail.stefvanschiedev.buildinggame.events.softdependencies.WorldEditBoundaryAssertion;
-import com.gmail.stefvanschiedev.buildinggame.leaderboard.JoinEvent;
+import com.gmail.stefvanschiedev.buildinggame.leaderboard.LeaderboardEvent;
 import com.gmail.stefvanschiedev.buildinggame.managers.arenas.*;
 import com.gmail.stefvanschiedev.buildinggame.managers.commands.CommandManager;
 import com.gmail.stefvanschiedev.buildinggame.managers.softdependencies.PlaceholderAPIPlaceholders;
 import com.gmail.stefvanschiedev.buildinggame.timers.*;
 import com.gmail.stefvanschiedev.buildinggame.utils.Achievement;
 import com.gmail.stefvanschiedev.buildinggame.utils.NPCFloorChangeTrait;
-import com.gmail.stefvanschiedev.buildinggame.utils.PlaceholderSupplier;
 import com.gmail.stefvanschiedev.buildinggame.utils.TopStatHologram;
 import com.gmail.stefvanschiedev.buildinggame.utils.arena.ArenaMode;
 import com.gmail.stefvanschiedev.buildinggame.utils.bungeecord.BungeeCordHandler;
@@ -106,8 +105,8 @@ public class Main extends JavaPlugin {
 		getLogger().info("Loading files");
 		SettingsManager.getInstance().setup(this, true);
 
-        // register JoinEvent
-        Bukkit.getServer().getPluginManager().registerEvents(new JoinEvent(), this);
+        // register LeaderboardEvent
+        Bukkit.getServer().getPluginManager().registerEvents(new LeaderboardEvent(), this);
 
 		//loading metrics
 		getLogger().info("Loading metrics");

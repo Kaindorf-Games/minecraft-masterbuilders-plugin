@@ -25,10 +25,11 @@ public class Leaderboard {
         this.sortedBy.put("4", "Plays");
 
         this.columns = new LinkedList<Column>();
-        this.columns.add(new Column("Wins", "Wins", true, false));
-        this.columns.add(new Column("Points", "Points", true, false));
-        this.columns.add(new Column("Average Points", "Average Points", true, true));
+        this.columns.add(new Column("Name", "Name", false, false));
         this.columns.add(new Column("Plays", "Plays", true, false));
+        this.columns.add(new Column("Average Points", "Average Points", true, true));
+        this.columns.add(new Column("Points", "Points", true, false));
+        this.columns.add(new Column("Wins", "Wins", true, false));
 
         this.members = new LinkedList<Member>();
     }

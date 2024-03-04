@@ -230,6 +230,25 @@ public final class StatManager {
         );
 	}
 
+    /**
+     * Saves all statistics to the database
+     *
+     * @since 4.0.0
+     */
+    public synchronized void clearStatsInDatabase() {
+        YamlConfiguration config = SettingsManager.getInstance().getConfig();
+
+        for (UUID player : getMySQLDatabase().getAllPlayers()) {
+            for (StatType stat : this.stats.keySet()){
+                if (stat.isEnabled(config))
+                    getMySQLDatabase().setStat(player.toString(), stat, 0);
+            }
+        }
+
+        this.stats.clear();
+
+    }
+
 	/**
      * Returns the instance of this singleton class
      *
